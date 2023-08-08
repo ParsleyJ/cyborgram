@@ -4,7 +4,6 @@ import * as fs from "fs";
 export type CyborgramKeys = {
     apiID: number,
     apiHash: string,
-    stringSession: string,
     selfID: string,
     testSiteID: string,
     preambleID: string,

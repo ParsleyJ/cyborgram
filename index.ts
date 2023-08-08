@@ -22,6 +22,9 @@ import {StringSession} from "telegram/sessions/StringSession.js";
 import {getKeys} from "./keys.js";
 import {CyborgramConfig, getConfig} from "./config.js";
 import "./utils/extensions.js";
+import {StoreSession} from "telegram/sessions";
+import fs from "fs/promises";
+import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
 
 (async () => {
 
@@ -95,8 +98,6 @@ import "./utils/extensions.js";
 
     /*
     TODO :
-        - isolate modules
-        - store session
         - fix need to send something
         - evaluate js sourcefile in chat
             - use sources in preamble
@@ -232,13 +233,28 @@ import "./utils/extensions.js";
 
     }
 
+    async function loadSession(): Promise<string> {
+        try {
+            let buf = await fs.readFile("./cyborgramSession.txt", {encoding: "utf-8"})
+            return buf.toString()
+        } catch (err) {
+            console.log("Could not load saved session; Please login.")
+            return ""
+        }
+    }
+
+    const _stringSession = await loadSession()
 
     const client = new TelegramClient(
-        new StringSession(_keys["stringSession"]),
+        new StringSession(_stringSession),
         _keys["apiID"],
         _keys["apiHash"],
-        {connectionRetries: 5,}
+        {
+            connectionRetries: 5,
+            retryDelay: 5000,
+        }
     );
+
     await client.start({
         phoneNumber: async () => await input.text("Please enter your number: "),
         password: async () => await input.text("Please enter your password: "),
@@ -247,7 +263,14 @@ import "./utils/extensions.js";
         onError: (err) => console.log(err),
     });
     console.log("You should now be connected.");
-    console.log(client.session.save()); // Save this string to avoid logging in again
+    let savedSession = (client.session as StringSession).save();
+    console.log("String session: " + savedSession);
+
+    if (_stringSession.isBlank()) {
+        console.log("Saving session in cyborgramSession.txt")
+        await fs.writeFile("./cyborgramSession.txt", savedSession)
+        console.log("Saved!")
+    }
 
     (await client.getDialogs({})).forEach((v: Dialog) => {
         allDialogs.push(v);
