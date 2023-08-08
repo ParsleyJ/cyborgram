@@ -1,0 +1,32 @@
+{
+  "name": "cyborgram",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Node server that embeds a Javascript interpreter in my chats, giving me Telegram superpowers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Telegram",
+    "Javascript",
+    "Typescript"
+  ],
+  "author": "ParsleyJ",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.2.1",
+    "cowsay": "^1.5.0",
+    "fakeyou.ts": "^1.1.2",
+    "globol": "^0.8.0",
+    "input": "^1.0.1",
+    "one-liner-joke": "^1.2.2",
+    "openai": "^3.2.1",
+    "telegram": "2.18.4"
+  },
+  "devDependencies": {
+    "boxen": "^6.2.1",
+    "owoifyx": "^1.0.4",
+    "wikipedia": "^1.1.8"
+  }
+}

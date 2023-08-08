@@ -1,0 +1,42 @@
+{
+  "summonLastPrimitive": "!!",
+
+  "primitiveCommands": [
+    {
+      "name": "Do and keep message",
+      "type": "prefix",
+      "key": "))",
+      "result": "none",
+      "onEnd": "keep"
+    },
+    {
+      "name": "Do and delete message",
+      "type": "prefix",
+      "key": ")",
+      "result": "none",
+      "onEnd": "delete"
+    },
+    {
+      "name": "Evaluate and append result",
+      "type": "prefix",
+      "key": "?=",
+      "result": "getEvaluated",
+      "onEnd": "append",
+      "appendSeparator": " = "
+    },
+    {
+      "name": "Evaluate and replace with result",
+      "type": "prefix",
+      "key": "?",
+      "result": "getEvaluated",
+      "onEnd": "replace"
+    },
+    {
+      "name": "Execute statements and replace with returned value",
+      "type": "prefix",
+      "key": ";",
+      "result": "getReturned",
+      "onEnd": "replace"
+    }
+  ]
+}

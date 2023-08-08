@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "es2017",
+    "sourceMap": true,
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "noImplicitUseStrict": true,
+    "alwaysStrict": false,
+    "resolveJsonModule": true,
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
