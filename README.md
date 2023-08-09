@@ -65,7 +65,7 @@ Grab them from the [Telegram App configuration page](https://my.telegram.org/app
 
 #### 3. Create a _Preamble_ channel (optional)
 
-You can select a _preamble_ channel.
+You can select a _Preamble_ channel.
 In the preamble you can write portions of JS code that will be executed each time you execute a command. Any declaration
 in the preamble (e.g., `function`s and `let`/`const`s) will be available in the scope of your commands.
 
@@ -82,7 +82,7 @@ Once you create the chat, take note of its ID.
 
 You can skip this step. If you do, your _Saved Messages_ chat will be used instead.
 
-#### 5. Create a keys JSON file and give it an arbitrary name (e.g., `mykeys.json`):
+#### 5. Create a JSON file for the keys and give it an arbitrary name (e.g., `mykeys.json`):
 
 Create a JSON file with the required IDs and API keys:
 
@@ -104,7 +104,7 @@ Create a JSON file with the required IDs and API keys:
 
 #### 6. Start Cyborgram and Login
 
-Launch Cyborgram, ensuring to set the `KEYS_FILE` environment variable pointing to your keys file.
+Launch Cyborgram, and be sure to set the `KEYS_FILE` environment variable pointing to your keys file.
 
 ```bash
 KEYS_FILE=path/to/keysFile.json npx cyborgram
@@ -179,7 +179,7 @@ Send `)Help()` in any chat to send the complete list of available functions and 
 The preamble is a private channel containing all the code you want to be prepended to each of your commands.
 To define a channel as preamble, set its ID in the `preambleID` field of the keys JSON file (and restart Cyborgram).
 
-Then write JS code as messages in the channel, and every time a command is executed this code is prepended to your command code, in the same order the message appear in the preamble.
+Then write JS code as messages in the channel, and every time a command is executed this code is prepended to your command code, in the same order the messages appear in the preamble.
 
 
 | ![Example Image 5][image-preamble] | ![Example GIF 2][example-gif-5] |
