@@ -5,8 +5,8 @@ export type CyborgramKeys = {
     apiID: number,
     apiHash: string,
     selfID: string,
-    testSiteID: string,
-    preambleID: string,
+    errDumpID?: string,
+    preambleID?: string,
 }
 
 let keys: CyborgramKeys | null = null

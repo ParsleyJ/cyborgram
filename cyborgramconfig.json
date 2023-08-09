@@ -1,6 +1,6 @@
 {
   "summonLastPrimitive": "!!",
-
+  "killswitch": "CYBORG_STOP",
   "primitiveCommands": [
     {
       "name": "Do and keep message",

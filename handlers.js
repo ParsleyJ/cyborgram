@@ -73,6 +73,7 @@ export class Handler {
         return this._func;
     }
     async evaluate(client, event) {
+        var _a;
         let attemptMatch = this.trigger.attemptMatch(event);
         if (!attemptMatch) {
             return;
@@ -86,7 +87,7 @@ export class Handler {
         catch (e) {
             console.log(`Error when attempting to evaluate handler ${this.name} with function=«${this.func}»`);
             console.log(e);
-            await client.sendMessage(getKeys()["testSiteID"], { message: "" + e });
+            await client.sendMessage((_a = getKeys()["errDumpID"]) !== null && _a !== void 0 ? _a : "me", { message: "" + e });
         }
     }
 }

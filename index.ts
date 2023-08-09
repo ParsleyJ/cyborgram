@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {Api, TelegramClient} from "telegram";
 import input from "input";
 import {NewMessage, NewMessageEvent} from "telegram/events/NewMessage.js";
@@ -5,10 +7,6 @@ import * as process from "process";
 
 import {Dialog} from "telegram/tl/custom/dialog.js";
 import {Handler} from "./handlers.js";
-
-import PeerUser = Api.PeerUser;
-import PeerChat = Api.PeerChat;
-import PeerChannel = Api.PeerChannel;
 
 import {BaseContext, buildCyborgramContext} from "./modules/BaseModule.js";
 import {AddMessageReferences} from "./modules/MsgReferencesModule.js";
@@ -22,9 +20,7 @@ import {StringSession} from "telegram/sessions/StringSession.js";
 import {getKeys} from "./keys.js";
 import {CyborgramConfig, getConfig} from "./config.js";
 import "./utils/extensions.js";
-import {StoreSession} from "telegram/sessions";
 import fs from "fs/promises";
-import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
 
 (async () => {
 
@@ -123,7 +119,7 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
 
         } catch (e) {
             console.log(e);
-            await client.sendMessage(_keys["testSiteID"], {message: "" + e});
+            await client.sendMessage(_keys["errDumpID"]??"me", {message: "" + e});
         }
     }
 
@@ -199,7 +195,7 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
                             console.log(`_result = ${_result}`);
                         } catch (e) {
                             console.log(e);
-                            await client.sendMessage(_keys["testSiteID"], {message: "" + e});
+                            await client.sendMessage(_keys["errDumpID"]??"me", {message: "" + e});
                         } finally {
                             if (_primitive.onEnd === 'keep') {
                                 await client.editMessage(thisMsg.peerId, {message: thisMsg.id, text: _jsText});
@@ -255,13 +251,15 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
         }
     );
 
-    await client.start({
+    let authParams = {
         phoneNumber: async () => await input.text("Please enter your number: "),
         password: async () => await input.text("Please enter your password: "),
         phoneCode: async () =>
             await input.text("Please enter the code you received: "),
         onError: (err) => console.log(err),
-    });
+    };
+    await client.start(authParams);
+
     console.log("You should now be connected.");
     let savedSession = (client.session as StringSession).save();
     console.log("String session: " + savedSession);
@@ -282,28 +280,13 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
     client.addEventHandler(async function (event: NewMessageEvent) {
         let wasBuiltinCommand = false;
         if (event?.message?.senderId?.compare?.(_keys["selfID"]) === 0) {
-            if (event.message?.text.trim() === 'SEPPUKU') {
-                console.log("Self-kill command detected.");
+            if (event.message?.text.trim() === getConfig()["killswitch"]) {
+                console.log("Abort command detected.");
                 process.exit(0);
             }
             wasBuiltinCommand = await handlePrimitiveCommand(client, event, lastSelfEvent);
             lastSelfEvent = event;
 
-        }
-
-        if (!wasBuiltinCommand) {
-            let peerForTestSiteCheck = event?.message.peerId ?? {};
-            let checkResult = false;
-            if (peerForTestSiteCheck instanceof PeerUser) {
-                checkResult = peerForTestSiteCheck.userId.compare(_keys["testSiteID"]) === 0;
-            } else if (peerForTestSiteCheck instanceof PeerChat) {
-                checkResult = peerForTestSiteCheck.chatId.compare(_keys["testSiteID"]) === 0;
-            } else if (peerForTestSiteCheck instanceof PeerChannel) {
-                checkResult = peerForTestSiteCheck.channelId.compare(_keys["testSiteID"]) === 0;
-            }
-            if (checkResult) {
-                wasBuiltinCommand = await handlePrimitiveCommand(client, event, lastSelfEvent);
-            }
         }
 
         if (!wasBuiltinCommand) {
@@ -318,8 +301,7 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
         }
 
         if (!wasBuiltinCommand && !lastSelfEvent) {
-            // If it is normal (unaffected) text, but lastSelfEvent is still not set,
-            // set it now.
+            // If it is normal (unaffected) text, but lastSelfEvent is still not set, set it now.
             lastSelfEvent = event
         }
     }, new NewMessage({}));
@@ -344,7 +326,7 @@ import {TelegramClientParams} from "telegram/client/telegramBaseClient.js";
                 await func();
             } catch (e) {
                 console.log(e);
-                await client.sendMessage(_keys["testSiteID"], {message: "" + e});
+                await client.sendMessage(_keys["errDumpID"]??"me", {message: "" + e});
             }
         } else {
             console.log(

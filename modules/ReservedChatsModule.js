@@ -5,7 +5,7 @@ export class AddReservedChatUtils extends CyborgramModule {
     async build(obj) {
         let _selfID = getKeys()["selfID"];
         let _preambleID = getKeys()["preambleID"];
-        let _testSiteID = getKeys()["testSiteID"];
+        let _errDumpID = getKeys()["errDumpID"];
         obj.help["log(text = thatOrThisTxt)"] = "Sends a message to 'me'.";
         async function log(text = obj.thatOrThisTxt) {
             if (typeof text !== 'string') {
@@ -44,6 +44,10 @@ export class AddReservedChatUtils extends CyborgramModule {
         obj.help["getPreamble(): string"] = "Get all the preamble contents";
         async function getPreamble() {
             var _a;
+            if (!_preambleID) {
+                console.log("Skipping preamble: chat not defined.");
+                return "";
+            }
             let _preambleMessages = await obj.client.getMessages("" + _preambleID, { limit: undefined });
             console.log("Loading Preamble...");
             let _texts = [];
@@ -64,7 +68,7 @@ export class AddReservedChatUtils extends CyborgramModule {
             return _preambleText;
         }
         // noinspection JSUnusedGlobalSymbols
-        return Object.assign(Object.assign({}, obj), { selfID: _selfID, testSiteID: _testSiteID, preambleID: _preambleID, log,
+        return Object.assign(Object.assign({}, obj), { selfID: _selfID, errDumpID: _errDumpID, preambleID: _preambleID, log,
             save,
             preambleMsgByID,
             getPreamble });

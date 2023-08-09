@@ -2,8 +2,9 @@
   "name": "cyborgram",
   "type": "module",
   "version": "1.0.0",
-  "description": "Node server that embeds a Javascript interpreter in my chats, giving me Telegram superpowers",
+  "description": "Add JS superpowers to your Telegram chats",
   "main": "index.js",
+  "bin": "./index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,21 +13,23 @@
     "Javascript",
     "Typescript"
   ],
-  "author": "ParsleyJ",
-  "license": "ISC",
+  "author": "Giuseppe Petrosino <parsleyjoe@gmail.com> (github.com/ParsleyJ)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ParsleyJ/cyborgram.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ParsleyJ/cyborgram/issues"
+  },
+  "homepage": "https://github.com/ParsleyJ/cyborgram",
   "dependencies": {
     "@types/node": "^20.2.1",
-    "cowsay": "^1.5.0",
-    "fakeyou.ts": "^1.1.2",
     "globol": "^0.8.0",
     "input": "^1.0.1",
-    "one-liner-joke": "^1.2.2",
-    "openai": "^3.2.1",
     "telegram": "2.18.4"
   },
   "devDependencies": {
-    "boxen": "^6.2.1",
-    "owoifyx": "^1.0.4",
-    "wikipedia": "^1.1.8"
+
   }
 }

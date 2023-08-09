@@ -1,5 +1,5 @@
 import {NewMessageEvent} from "telegram/events/NewMessage.js";
-import {Api, TelegramClient} from "telegram";
+import {Api, client, TelegramClient} from "telegram";
 import {getKeys} from "./keys.js";
 import Message = Api.Message;
 
@@ -137,7 +137,7 @@ export class Handler {
         } catch (e) {
             console.log(`Error when attempting to evaluate handler ${this.name} with function=«${this.func}»`)
             console.log(e);
-            await client.sendMessage(getKeys()["testSiteID"], {message: "" + e});
+            await client.sendMessage(getKeys()["errDumpID"]??"me", {message: "" + e});
         }
     }
 }

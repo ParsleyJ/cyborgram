@@ -7,8 +7,8 @@ import {isNullish, nullish} from "../utils/nullish.js";
 
 export type ReservedChatUtils = {
     selfID: string,
-    testSiteID: string,
-    preambleID: string,
+    errDumpID?: string,
+    preambleID?: string,
     log: (text?: any) => Promise<void>,
     save: (txt?: any) => Promise<void>,
     getPreamble: () => Promise<string>,
@@ -29,7 +29,7 @@ export class AddReservedChatUtils<T extends BaseContext & {
 
         let _selfID = getKeys()["selfID"]
         let _preambleID = getKeys()["preambleID"]
-        let _testSiteID = getKeys()["testSiteID"]
+        let _errDumpID = getKeys()["errDumpID"]
 
         obj.help["log(text = thatOrThisTxt)"] = "Sends a message to 'me'."
 
@@ -77,6 +77,10 @@ export class AddReservedChatUtils<T extends BaseContext & {
         obj.help["getPreamble(): string"] = "Get all the preamble contents"
 
         async function getPreamble() {
+            if(!_preambleID){
+                console.log("Skipping preamble: chat not defined.")
+                return ""
+            }
             let _preambleMessages = await obj.client.getMessages("" + _preambleID, {limit: undefined});
             console.log("Loading Preamble...");
             let _texts: string[] = [];
@@ -109,7 +113,7 @@ export class AddReservedChatUtils<T extends BaseContext & {
         return {
             ...obj,
             selfID: _selfID,
-            testSiteID: _testSiteID,
+            errDumpID: _errDumpID,
             preambleID: _preambleID,
             log,
             save,

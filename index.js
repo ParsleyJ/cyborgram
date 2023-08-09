@@ -1,10 +1,8 @@
+#!/usr/bin/env node
 import { Api, TelegramClient } from "telegram";
 import input from "input";
 import { NewMessage } from "telegram/events/NewMessage.js";
 import * as process from "process";
-var PeerUser = Api.PeerUser;
-var PeerChat = Api.PeerChat;
-var PeerChannel = Api.PeerChannel;
 import { buildCyborgramContext } from "./modules/BaseModule.js";
 import { AddMessageReferences } from "./modules/MsgReferencesModule.js";
 import { AddMessagingUtils } from "./modules/MessagingModule.js";
@@ -18,6 +16,7 @@ import { getConfig } from "./config.js";
 import "./utils/extensions.js";
 import fs from "fs/promises";
 (async () => {
+    var _a;
     let _keys = getKeys();
     // Creating allDialogs const to make it available in the prompt environment
     // noinspection JSMismatchedCollectionQueryUpdate
@@ -68,7 +67,6 @@ import fs from "fs/promises";
     }
     /*
     TODO :
-        - store session
         - fix need to send something
         - evaluate js sourcefile in chat
             - use sources in preamble
@@ -77,6 +75,7 @@ import fs from "fs/promises";
         - macros: outside-command macros
     */
     async function wrapAndEval(client, event, code) {
+        var _a;
         let prep = await prepareContext(client, event, handlers, wrapAndEval);
         let _preamble = await prep.getPreamble();
         try {
@@ -86,11 +85,11 @@ import fs from "fs/promises";
         }
         catch (e) {
             console.log(e);
-            await client.sendMessage(_keys["testSiteID"], { message: "" + e });
+            await client.sendMessage((_a = _keys["errDumpID"]) !== null && _a !== void 0 ? _a : "me", { message: "" + e });
         }
     }
     async function handlePrimitiveCommand(client, event, lastSelfEvent) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         let thisMsg = event.message;
         let _config = getConfig();
         if (thisMsg.text === _config.summonLastPrimitive && lastSelfEvent && lastSelfEvent.message.text) {
@@ -157,7 +156,7 @@ import fs from "fs/promises";
                         }
                         catch (e) {
                             console.log(e);
-                            await client.sendMessage(_keys["testSiteID"], { message: "" + e });
+                            await client.sendMessage((_c = _keys["errDumpID"]) !== null && _c !== void 0 ? _c : "me", { message: "" + e });
                         }
                         finally {
                             if (_primitive.onEnd === 'keep') {
@@ -177,7 +176,7 @@ import fs from "fs/promises";
                                     await client.editMessage(thisMsg.peerId, { message: thisMsg.id, text: "" + _result });
                                 }
                                 else {
-                                    let sep = (_c = _primitive.appendSeparator) !== null && _c !== void 0 ? _c : ' -> ';
+                                    let sep = (_d = _primitive.appendSeparator) !== null && _d !== void 0 ? _d : ' -> ';
                                     await client.editMessage(thisMsg.peerId, {
                                         message: thisMsg.id,
                                         text: _jsText + sep + _result
@@ -203,23 +202,17 @@ import fs from "fs/promises";
         }
     }
     const _stringSession = await loadSession();
-    let clientParams;
-    if (_stringSession.isBlank()) {
-        clientParams = {};
-    }
-    else {
-        clientParams = {
-            connectionRetries: 5,
-            retryDelay: 5000,
-        };
-    }
-    const client = new TelegramClient(new StringSession(_stringSession), _keys["apiID"], _keys["apiHash"], clientParams);
-    await client.start({
+    const client = new TelegramClient(new StringSession(_stringSession), _keys["apiID"], _keys["apiHash"], {
+        connectionRetries: 5,
+        retryDelay: 5000,
+    });
+    let authParams = {
         phoneNumber: async () => await input.text("Please enter your number: "),
         password: async () => await input.text("Please enter your password: "),
         phoneCode: async () => await input.text("Please enter the code you received: "),
         onError: (err) => console.log(err),
-    });
+    };
+    await client.start(authParams);
     console.log("You should now be connected.");
     let savedSession = client.session.save();
     console.log("String session: " + savedSession);
@@ -234,31 +227,15 @@ import fs from "fs/promises";
     let lastSelfEvent;
     // adds an event handler for new messages
     client.addEventHandler(async function (event) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d;
         let wasBuiltinCommand = false;
         if (((_c = (_b = (_a = event === null || event === void 0 ? void 0 : event.message) === null || _a === void 0 ? void 0 : _a.senderId) === null || _b === void 0 ? void 0 : _b.compare) === null || _c === void 0 ? void 0 : _c.call(_b, _keys["selfID"])) === 0) {
-            if (((_d = event.message) === null || _d === void 0 ? void 0 : _d.text.trim()) === 'SEPPUKU') {
-                console.log("Self-kill command detected.");
+            if (((_d = event.message) === null || _d === void 0 ? void 0 : _d.text.trim()) === getConfig()["killswitch"]) {
+                console.log("Abort command detected.");
                 process.exit(0);
             }
             wasBuiltinCommand = await handlePrimitiveCommand(client, event, lastSelfEvent);
             lastSelfEvent = event;
-        }
-        if (!wasBuiltinCommand) {
-            let peerForTestSiteCheck = (_e = event === null || event === void 0 ? void 0 : event.message.peerId) !== null && _e !== void 0 ? _e : {};
-            let checkResult = false;
-            if (peerForTestSiteCheck instanceof PeerUser) {
-                checkResult = peerForTestSiteCheck.userId.compare(_keys["testSiteID"]) === 0;
-            }
-            else if (peerForTestSiteCheck instanceof PeerChat) {
-                checkResult = peerForTestSiteCheck.chatId.compare(_keys["testSiteID"]) === 0;
-            }
-            else if (peerForTestSiteCheck instanceof PeerChannel) {
-                checkResult = peerForTestSiteCheck.channelId.compare(_keys["testSiteID"]) === 0;
-            }
-            if (checkResult) {
-                wasBuiltinCommand = await handlePrimitiveCommand(client, event, lastSelfEvent);
-            }
         }
         if (!wasBuiltinCommand) {
             let keys = [];
@@ -271,8 +248,7 @@ import fs from "fs/promises";
             }
         }
         if (!wasBuiltinCommand && !lastSelfEvent) {
-            // If it is normal (unaffected) text, but lastSelfEvent is still not set,
-            // set it now.
+            // If it is normal (unaffected) text, but lastSelfEvent is still not set, set it now.
             lastSelfEvent = event;
         }
     }, new NewMessage({}));
@@ -296,7 +272,7 @@ import fs from "fs/promises";
             }
             catch (e) {
                 console.log(e);
-                await client.sendMessage(_keys["testSiteID"], { message: "" + e });
+                await client.sendMessage((_a = _keys["errDumpID"]) !== null && _a !== void 0 ? _a : "me", { message: "" + e });
             }
         }
         else {
